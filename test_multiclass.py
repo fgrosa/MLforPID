@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import numpy as np
 import pandas as pd
 from sklearn import svm
@@ -51,16 +52,16 @@ contourax.set_yticks(())
 
 fighistos = plt.figure(figsize=(18,7.5))
 for icat in range(4):
-  sub = fighistos.add_subplot(2, 2, icat+1)
-  plt.hist(test_df.loc[test_df['category'] == 0]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='A')
-  plt.hist(test_df.loc[test_df['category'] == 1]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='B')
-  plt.hist(test_df.loc[test_df['category'] == 2]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='C')
-  plt.hist(test_df.loc[test_df['category'] == 3]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='D')
-  plt.xlabel('prob_{0}'.format(icat))
-  plt.ylabel('entries')
-  plt.xlim(0,1)
-  plt.yscale('log')
-  plt.grid()
-  plt.legend(loc='best')
+    sub = fighistos.add_subplot(2, 2, icat+1)
+    plt.hist(test_df.loc[test_df['category'] == 0]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='A')
+    plt.hist(test_df.loc[test_df['category'] == 1]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='B')
+    plt.hist(test_df.loc[test_df['category'] == 2]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='C')
+    plt.hist(test_df.loc[test_df['category'] == 3]['prob_{0}'.format(icat)], bins=50, histtype='step', density=1, label='D')
+    plt.xlabel('prob_{0}'.format(icat))
+    plt.ylabel('entries')
+    plt.xlim(0,1)
+    plt.yscale('log')
+    plt.grid()
+    plt.legend(loc='best')
 
 plt.show()
