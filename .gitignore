@@ -2,3 +2,4 @@
 *.parquet.gzip
 */*.root
 */*.parquet.gzip
+__pycache__/
