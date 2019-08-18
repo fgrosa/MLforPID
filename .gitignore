@@ -1,0 +1,4 @@
+*.root
+*.parquet.gzip
+*/*.root
+*/*.parquet.gzip
