@@ -20,6 +20,7 @@ def make_meshgrid(x, y, h=.02):
                          np.arange(y_min, y_max, h))
     return xx, yy
 
+
 def plot_contours(ax, clf, xx, yy, **params):
     """Plot the decision boundaries for a classifier.
 
