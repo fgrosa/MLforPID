@@ -30,10 +30,7 @@ TString pathToLocalAODfiles=".";            // path to find AOD files when runni
 bool runGridTest=false;                     // flag to run a grid test: true (+runLocal=false).
 //To run job on GRID: runGridTest=false, runLocal=false sets the run grid mode: "full", "terminate"
 
-void RunAnalysisAODVertexingHFPIDsyst(TString configfilename="runAnalysis_config_LHC17l3b_fast.yml", TString runMode = "full");
-bool loadConfigFile(TString configfilename, std::vector<int> &runs, bool &isRunOnMC, TString &aliPhysVersion, TString &gridDataDir, TString &gridDataPattern);
-
-void RunAnalysisAODVertexingHFPIDsyst(TString configfilename, TString runMode)
+void RunAnalysisAODVertexingHFPIDsyst(TString configfilename="runAnalysis_config_LHC17l3b_fast.yml", TString runMode = "full", bool mergeviajdl=true)
 {
     // set if you want to run the analysis locally (true), or on grid (false)
     bool local = runLocal;
@@ -163,7 +160,7 @@ void RunAnalysisAODVertexingHFPIDsyst(TString configfilename, TString runMode)
 		// (see below) mode, set SetMergeViaJDL(false)
 		// to collect final results
 		alienHandler->SetMaxMergeStages(3); //2, 3
-		alienHandler->SetMergeViaJDL(false);
+		alienHandler->SetMergeViaJDL(mergeviajdl);
 
 		// define the output folders
 		alienHandler->SetGridWorkingDir(Form("PIDsingletrack_%s",gridWorkingDir.Data()));
