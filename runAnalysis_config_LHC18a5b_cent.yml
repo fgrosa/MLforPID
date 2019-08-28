@@ -1,5 +1,5 @@
 system: pp
-datadir: /alice/sim/2017/LHC18a5b_cent/
+datadir: /alice/sim/2018/LHC18a5b_cent/
 datapattern: /AOD
 AliPhysicVersion: vAN-20190828_ROOT6-1
 runs: [282343, 282342, 282341, 282340, 282314, 282313, 282312, 282309, 282307, 282306, 282305,
