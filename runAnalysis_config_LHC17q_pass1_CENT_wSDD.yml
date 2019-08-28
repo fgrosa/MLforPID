@@ -1,0 +1,5 @@
+system: pp
+datadir: /alice/data/2017/LHC17q/
+datapattern: /pass1_CENT_wSDD/AOD
+AliPhysicVersion: vAN-20190828_ROOT6-1
+runs: [282367, 282366, 282365]
