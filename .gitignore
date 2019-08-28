@@ -3,3 +3,4 @@
 */*.root
 */*.parquet.gzip
 __pycache__/
+.DS_Store
