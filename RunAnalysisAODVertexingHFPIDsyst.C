@@ -21,7 +21,7 @@
 #endif
 
 using namespace std;
-enum system {kpp, kPbPb};
+enum system {kpp, kpPb, kPbPb};
 
 //SETTINGS
 //************************************
@@ -46,6 +46,8 @@ void RunAnalysisAODVertexingHFPIDsyst(TString configfilename="runAnalysis_config
     int System=-1;
     if(sSystem=="pp" || sSystem=="pPb")
         System = kpp;
+    else if(sSystem=="pPb")
+        System = kpPb;
     else if(sSystem=="PbPb")
         System = kPbPb;
     else {
@@ -86,11 +88,18 @@ void RunAnalysisAODVertexingHFPIDsyst(TString configfilename="runAnalysis_config
 
 	AliAnalysisTaskPIDResponse *pidResp = reinterpret_cast<AliAnalysisTaskPIDResponse *>(gInterpreter->ProcessLine(Form(".x %s (%d)", gSystem->ExpandPathName("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C"),isRunOnMC)));
 
-	AliMultSelectionTask *multSel = reinterpret_cast<AliMultSelectionTask *>(gInterpreter->ProcessLine(Form(".x %s", gSystem->ExpandPathName("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C"))));
-	multSel->SetAlternateOADBFullManualBypassMC("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/data/OADB-LHC18q-DefaultMC-HIJING.root"); //for LHC18-anchored productions
+	AliMultSelectionTask *multSel = NULL;
+	if(System==kPbPb || System==kpPb) {
+		multSel = reinterpret_cast<AliMultSelectionTask *>(gInterpreter->ProcessLine(Form(".x %s", gSystem->ExpandPathName("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/AddTaskMultSelection.C"))));
+		if(isRunOnMC && strstr(gridDataDir.c_str(),"2019"))
+			multSel->SetAlternateOADBFullManualBypassMC("$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/data/OADB-LHC18q-DefaultMC-HIJING.root"); //for LHC18-anchored productions
+	}
 
-	// gInterpreter->LoadMacro(".L AliAnalysisTaskSEHFSystPID.cxx++g");
-	AliAnalysisTaskSEHFSystPID *task = reinterpret_cast<AliAnalysisTaskSEHFSystPID*>(gInterpreter->ProcessLine(Form(".x %s (%d,%d,\"%s\",%s,\"%s\", %f, %f, %f, %f, %f, %s, %s, %d)",gSystem->ExpandPathName("$ALICE_PHYSICS/PWGHF/vertexingHF/macros/AddTaskHFSystPID.C"),System,isRunOnMC, "", "AliVEvent::kCentral | AliVEvent::kINT7", "_pp_kINT7",0.2,1.1,0.,0.,100.,"AliAnalysisTaskSEHFSystPID::kCentV0M","AliESDtrackCuts::kOff",50)));
+	int SystArg=1;
+	if(System==kpp)
+		SystArg=0;
+
+	AliAnalysisTaskSEHFSystPID *task = reinterpret_cast<AliAnalysisTaskSEHFSystPID*>(gInterpreter->ProcessLine(Form(".x %s (%d,%d,\"%s\",%s,\"%s\", %f, %f, %f, %f, %f, %s, %s, %d)",gSystem->ExpandPathName("$ALICE_PHYSICS/PWGHF/vertexingHF/macros/AddTaskHFSystPID.C"), SystArg, isRunOnMC, "", "AliVEvent::kINT7", "_pp_kINT7", 0.2, 1.1, 0., 0., 100.,"AliAnalysisTaskSEHFSystPID::kCentOff","AliESDtrackCuts::kOff",50)));
 	task->SetfFillTreeWithRawPIDOnly();
 	task->SetfFillTreeWithTrackQualityInfo();
 	task->EnableDetectors(true,true,true,true);
