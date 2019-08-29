@@ -104,6 +104,7 @@ void RunAnalysisAODVertexingHFPIDsyst(TString configfilename="runAnalysis_config
 	task->SetfFillTreeWithTrackQualityInfo();
 	task->EnableDetectors(true,true,true,true);
 	task->EnableParticleSpecies(true,true,true,true,true,true,true);
+	task->SetConversionFactordEdx(50.);
 
 	if(!mgr->InitAnalysis()) return;
 	mgr->SetDebugLevel(2);
