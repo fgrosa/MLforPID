@@ -23,8 +23,8 @@ def scalevars(dataframe):
     dataframe.pTPC /= 1000
     dataframe.pTOF /= 1000
     dataframe.pHMPID /= 1000
-    dataframe.dEdxITS /= 100
-    dataframe.dEdxTPC /= 100
+    dataframe.dEdxITS /= 50
+    dataframe.dEdxTPC /= 50
     dataframe.ToF /= 10
     dataframe.TrackLength /= 10
     dataframe.StartTimeRes /= 100
