@@ -76,9 +76,9 @@ if ARGS.data:
     SUFFIX = '_data'
 elif ARGS.mc:
     SUFFIX = '_MC'
-TAGS = {'pi_fromV0':[0,1], 'p_fromL':[2], 'e_fromconversions':[3], 'kaons_fromkinks':[4], \
+TAGS = {'pi_fromV0':[0, 1], 'p_fromL':[2], 'e_fromconversions':[3], 'kaons_fromkinks':[4], \
     'kaons_fromTOF':[5], 'deuterons_fromTOFTPC':[8], 'triton_fromTOFTPC':[9], 'He3_fromTOFTPC':[10]}
 for tag, selbits in TAGS.items():
-    df_tag = filter_bit_df(DF,selbits)
+    df_tag = filter_bit_df(DF, selbits)
     df_tag.to_parquet('{0}/{1}{2}.parquet.gzip'.format(ARGS.outdir, tag, SUFFIX), \
         compression='gzip')
