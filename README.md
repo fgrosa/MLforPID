@@ -8,6 +8,7 @@
 ## Basic examples
 * Binary classification with BTD (using [interpret](https://github.com/microsoft/interpret) library): test_BDTinterpret.py
 * Multi-class classification with SVM using the [scikit-learn](https://scikit-learn.org/stable/modules/svm.html) library and with the [xgboost](https://xgboost.readthedocs.io/en/latest/) library: test_multiclass.py
+* One vs. rest classification with [xgboost](https://xgboost.readthedocs.io/en/latest/) classifier using the [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) library for the one vs. rest classification: test_BDTOneVsRest.py
 
 ## Data samples:
 * Data: LHC17pq_cent
