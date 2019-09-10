@@ -7,7 +7,7 @@
 
 ## Basic examples
 * Binary classification with BTD (using [interpret](https://github.com/microsoft/interpret) library): test_BDTinterpret.py
-* Multi-class classification with SVM using the [scikit-learn](https://scikit-learn.org/stable/modules/svm.html) library and with the [xgboost](https://xgboost.readthedocs.io/en/latest/ library: test_multiclass.py
+* Multi-class classification with SVM using the [scikit-learn](https://scikit-learn.org/stable/modules/svm.html) library and with the [xgboost](https://xgboost.readthedocs.io/en/latest/) library: test_multiclass.py
 
 ## Data samples:
 * Data: LHC17pq_cent
