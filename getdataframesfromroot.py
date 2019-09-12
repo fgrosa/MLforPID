@@ -1,35 +1,35 @@
 import os
+import argparse
 import numba
 import uproot
-import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
-import argparse
 
-parser = argparse.ArgumentParser(description='Arguments')
-parser.add_argument('--maxentries', type=int, help='max number of entries')
-parser.add_argument('--data', action='store_true', help='flag to add "data" suffix')
-parser.add_argument('--mc', action='store_true', help='flag to add "MC" suffix')
-parser.add_argument('inputfile', metavar='text', default='AnalysisResults.root', help='input root file name')
-parser.add_argument('inputdir', metavar='text', default='PWGHF_D2H_SystNsigmaPID_pp_kINT7', help='TDirectorFile name in input root file')
-parser.add_argument('outdir', metavar='text', default='.', help='output directory')
-args = parser.parse_args()
+PARSER = argparse.ArgumentParser(description='Arguments')
+PARSER.add_argument('--maxentries', type=int, help='max number of entries')
+PARSER.add_argument('--data', action='store_true', help='flag to add "data" suffix')
+PARSER.add_argument('--mc', action='store_true', help='flag to add "MC" suffix')
+PARSER.add_argument('inputfile', metavar='text', default='AnalysisResults.root', \
+    help='input root file name')
+PARSER.add_argument('inputdir', metavar='text', default='PWGHF_D2H_SystNsigmaPID_pp_kINT7', \
+    help='TDirectorFile name in input root file')
+PARSER.add_argument('outdir', metavar='text', default='.', help='output directory')
+ARGS = PARSER.parse_args()
 
-def scalevars(df):
-    df.pT /= 1000
-    df.eta /= 1000
-    df.phi /= 1000
-    df.p /= 1000
-    df.pTPC /= 1000
-    df.pTOF /= 1000
-    df.pHMPID /= 1000
-    df.dEdxITS /= 100
-    df.dEdxTPC /= 100
-    df.ToF /= 10
-    df.TrackLength /= 10
-    df.StartTimeRes /= 100
-    df.HMPIDsig /= 100
-    df.HMPIDocc /= 100
+def scalevars(dataframe):
+    dataframe.pT /= 1000
+    dataframe.eta /= 1000
+    dataframe.phi /= 1000
+    dataframe.p /= 1000
+    dataframe.pTPC /= 1000
+    dataframe.pTOF /= 1000
+    dataframe.pHMPID /= 1000
+    dataframe.dEdxITS /= 50
+    dataframe.dEdxTPC /= 50
+    dataframe.ToF /= 10
+    dataframe.TrackLength /= 10
+    dataframe.StartTimeRes /= 100
+    dataframe.HMPIDsig /= 100
+    dataframe.HMPIDocc /= 100
 
 @numba.njit
 def selectbiton(array_tag, bits):
@@ -46,38 +46,39 @@ def selectbiton(array_tag, bits):
             is_tagged.append(False)
     return is_tagged
 
-def filter_bit_df(df, activatedbit):
-    array_tag = df.loc[:, 'tag'].values.astype('int')
+def filter_bit_df(dataframe, activatedbit):
+    array_tag = dataframe.loc[:, 'tag'].values.astype('int')
     res_on = pd.Series([True]*len(array_tag))
 
     bitmapon = selectbiton(array_tag, activatedbit)
     res_on = pd.Series(bitmapon)
-    
-    df_sel = df[res_on.values]
-    return df_sel
 
-if '/home' not in args.outdir or '/Users' not in args.outdir or '$HOME' not in args.outdir:
-    args.outdir = os.getcwd()+'/'+args.outdir
+    dataframe_sel = dataframe[res_on.values]
+    return dataframe_sel
 
-if not os.path.isdir(args.outdir):
-    print('creating output directory {0}'.format(args.outdir))
-    os.mkdir(args.outdir)
+if '/home' not in ARGS.outdir or '/Users' not in ARGS.outdir or '$HOME' not in ARGS.outdir:
+    ARGS.outdir = os.getcwd()+'/'+ARGS.outdir
 
-tree = uproot.open(args.inputfile)['{0}/fPIDtree'.format(args.inputdir)]
-if args.maxentries:
-    df = tree.pandas.df(entrystop=args.maxentries)
+if not os.path.isdir(ARGS.outdir):
+    print('creating output directory {0}'.format(ARGS.outdir))
+    os.mkdir(ARGS.outdir)
+
+TREE = uproot.open(ARGS.inputfile)['{0}/fPIDtree'.format(ARGS.inputdir)]
+if ARGS.maxentries:
+    DF = TREE.pandas.df(entrystop=ARGS.maxentries)
 else:
-    df = tree.pandas.df()
+    DF = TREE.pandas.df()
 
-scalevars(df)
+scalevars(DF)
 
-suffix = ''
-if args.data:
-    suffix='_data'
-elif args.mc:
-    suffix='_MC'
-tags = {'pi_fromV0':[0,1], 'p_fromL':[2], 'e_fromconversions':[3], 'kaons_fromkinks':[4], 
-'kaons_fromTOF':[5], 'deuterons_fromTOFTPC':[8], 'triton_fromTOFTPC':[9], 'He3_fromTOFTPC':[10]}
-for tag, selbits in tags.items():
-    df_tag = filter_bit_df(df,selbits)
-    df_tag.to_parquet('{0}/{1}{2}.parquet.gzip'.format(args.outdir,tag,suffix),compression='gzip')
+SUFFIX = ''
+if ARGS.data:
+    SUFFIX = '_data'
+elif ARGS.mc:
+    SUFFIX = '_MC'
+TAGS = {'pi_fromV0':[0, 1], 'p_fromL':[2], 'e_fromconversions':[3], 'kaons_fromkinks':[4], \
+    'kaons_fromTOF':[5], 'deuterons_fromTOFTPC':[8], 'triton_fromTOFTPC':[9], 'He3_fromTOFTPC':[10]}
+for tag, selbits in TAGS.items():
+    df_tag = filter_bit_df(DF, selbits)
+    df_tag.to_parquet('{0}/{1}{2}.parquet.gzip'.format(ARGS.outdir, tag, SUFFIX), \
+        compression='gzip')
