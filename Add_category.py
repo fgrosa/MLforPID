@@ -1,14 +1,11 @@
 import pandas as pd
 import numpy as np
 
-def add_category(frame, n_category):
-    categories = np.zeros(len(frame),dtype=int)
-    values  = np.array(range(n_category),dtype=int)
-    #replace values in category from 1
-    for ind,value in enumerate(values,1):
-        start = int(len(frame)*(ind-1)/n_category)
-        end = int((len(frame)*ind/n_category))
-        categories[start:end] = value
-    #add column category
-    frame['category'] = categories
+def add_category(frames):
+    cat_array = np.array(range(len(frames.keys())))
+    cat_dict  = dict(zip(frames.keys(),cat_array))
+    print(cat_dict)
+    for keys in frames:
+        frames[keys]['category'] = cat_dict[keys]
+    
     
