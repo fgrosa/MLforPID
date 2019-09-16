@@ -49,7 +49,7 @@ def plotfinale2(file):
     labels = {'e': 'electrons', 'pi': 'pions', 'kaons': 'kaons', 'p': 'protons',
               'He3': 'He', 'triton': 'triton', 'deuterons': 'deuterons'}
 
-    #pure data vs raw raw percentage
+    #pure data vs raw percentage, dividing species in two groups for better visualization
     np.seterr(divide='ignore', invalid='ignore')
     xer = []
 
@@ -61,20 +61,42 @@ def plotfinale2(file):
     z=0
     for j in labels:
         plt.figure(3)
-        plt.subplot(4,2,z+1)
+        plt.subplot(2,2,z+1)
         dfraw = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
         dfpure = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin=lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
         dfrawcount = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
         dfpurecount = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
         yer = np.divide(np.sqrt(np.asarray(dfpurecount)*(1 - np.divide(dfpurecount,dfrawcount))),dfrawcount)
-        plt.scatter(width3, np.asarray(np.divide(dfpure,dfraw)), marker='o', c=color[z])
-        plt.errorbar(width3, np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), fmt='.k', capsize=3, elinewidth=0.5)    
+        plt.scatter(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), marker='o', c=color[z])
+        plt.errorbar(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), fmt='.k', capsize=3, elinewidth=0.5)    
         plt.title(nomi[z])
-        plt.axis([0,13,0,1.3])    
-        plt.xlabel('P')
+        plt.axis([-1,7,0,1.1])    
+        plt.xlabel('log(P)')
         plt.ylabel('% pure')
         plt.tight_layout()
         z = z+1
+        if z==4:
+            break
+
+    zz=4
+    for j in labels:
+        plt.figure(4)
+        plt.subplot(2,2,zz-3)
+        dfraw = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
+        dfpure = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin=lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
+        dfrawcount = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
+        dfpurecount = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
+        yer = np.divide(np.sqrt(np.asarray(dfpurecount)*(1 - np.divide(dfpurecount,dfrawcount))),dfrawcount)
+        plt.scatter(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), marker='o', c=color[zz])
+        plt.errorbar(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), fmt='.k', capsize=3, elinewidth=0.5)    
+        plt.title(nomi[zz])
+        plt.axis([-1,7,0,1.1])    
+        plt.xlabel('log(P)')
+        plt.ylabel('% pure')
+        plt.tight_layout()
+        zz = zz+1
+        if zz==7:
+            break
 
     plt.figure(1)
     #plot hist electrons
@@ -152,29 +174,14 @@ def plotfinale2(file):
 PARSER = argparse.ArgumentParser(description='Arguments to pass')
 PARSER.add_argument('dir', metavar='text', default='.',
                     help='flag to search in directory, remember put all paths!')
-PARSER.add_argument('--data', action='store_true',
-                    help='flag to search and visualize data file')
 PARSER.add_argument('--mc', action='store_true',
                     help='flag to search and visualize Monte Carlo file')
 ARGS = PARSER.parse_args()
-
-if not ARGS.data and not ARGS.mc:
-    print('You need to specificy if mc or data files')
-    exit()
 
 if ARGS.mc:
     # files
     files = [f for f in os.listdir(ARGS.dir) if 'MC.parquet.gzip' in f]
     files.remove('kaons_fromTOF_MC.parquet.gzip')
-
-    # plot
-    os.chdir(ARGS.dir)
-    plotfinale2(files)
-
-elif ARGS.data:
-    # files
-    files = [f for f in os.listdir(ARGS.dir) if '_data.parquet.gzip' in f]
-    files.remove('kaons_fromTOF_data.parquet.gzip')
 
     # plot
     os.chdir(ARGS.dir)
