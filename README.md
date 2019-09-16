@@ -1,5 +1,17 @@
 # Repository for PID studies with ML
 
+ branch_matteo
+#Data samples:
+Data: LHC17pq_cent
+MC: LHC17l3b_cent
+MC: LHC18a5b_cent
+
+#plot
+hist2d to represent data, remember to put directory,'--mc' for MC files and '--data' for data files
+
+#add_colum
+function to add a new column of the dataframe which it will be used later for training and testing
+
 ## Production of data frames
 * Run PID task on grid with RunAnalysisAODVertexingHFPIDsyst.C passing a yaml configuration file for your desired data sample
 * Run getdataframesfromroot.py script to convert trees to pandas dataframe and store them in files:  
@@ -19,3 +31,4 @@
 * ``` git config --global user.name "<Firstname> <Lastname>" ```
 * ``` git config --global user.email <your-email-address> ``` 
 * ``` git config --global user.github <your-github-username> ``` 
+master
