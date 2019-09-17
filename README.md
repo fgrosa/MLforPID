@@ -14,7 +14,7 @@ python3 getdataframesfromroot.py input_root_file name_TDirectoryFile output_dire
 
 ## Plots
 * dE/dx vs. p representation in 2D plots (both data or MC):
-```py
+```
 python3 plot_hist2d.py --mc (--data) name_directory_with_files 
 ```
 
