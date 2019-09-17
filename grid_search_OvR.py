@@ -5,7 +5,7 @@ import argparse
 from sklearn.multiclass import OneVsRestClassifier
 from xgboost import XGBClassifier
 from sklearn.model_selection import KFold
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_curve,auc
 from Add_category import add_category
 from itertools import product
 
@@ -52,7 +52,7 @@ n_estimators=[100,200,500]
 parameters = product(max_depth,n_estimators)
 
 #folding for cross validation
-kf = KFold(n_splits=5)
+kf = KFold(n_splits=5, shuffle= True, random_state=42)
 
 #create files for storing scores
 f = open('roac_auc_score.txt','w+')
@@ -60,17 +60,28 @@ f.write('ROC_AUC_SCORES \n')
 
 #manual grid search
 for param in parameters:
-    scores = np.array()
-    for train_in,val_in in kf.split(len(training_df)):
+    scores = np.empty()
+    for index in kf.split(training_df):
         # onevsrest classifier
         clf = OneVsRestClassifier(XGBClassifier(n_jobs=-1, max_depth=param[0], n_estimators=param[1]))
-        clf.fit(X_df[train_in],Y_df[train_in])
-        score = roc_auc_score(Y_df[val_in],clf.predict(X_df[val_in]),average = 'micro')
-        scores.append(score)
-    mean = np.mean(scores)
-    std  = np.std(scores)
-    f.write('max_depth = {0}, n_estimator = {1}, roc_auc_micro_score = {2} +/- {3}'.format(
-        param[0],param[1],mean,std))
+        x_train = X_df.iloc[index[0]]
+        y_train = Y_df.iloc[index[0]]
+        x_test  = X_df.iloc[index[1]]
+        y_test  = Y_df.iloc[index[1]]
+        y_score = clf.fit(x_train,y_train).decision_function(x_test)
+        n_classes= range(len(data.keys()))
+        fpr=dict()
+        tpr=dict()
+        roc_auc=dict()
+        for cat in n_classes:
+            fpr[cat], tpr[cat], _ = roc_curve(y_test.query('category == %f'%cat) ,y_score[:, cat])
+            roc_auc[cat] = auc(fpr[cat], tpr[cat])
+        # Compute micro-average ROC curve and ROC area
+        fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(),y_score.ravel())
+        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+    
+    f.write('max_depth = {0}, n_estimator = {1}, roc_auc_micro_score = {2}'.format(
+        param[0],param[1],roc_auc['micro']))
     del scores
 
 
