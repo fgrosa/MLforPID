@@ -51,7 +51,7 @@ max_depth=[2,3,5,8]
 n_estimators=[100,200,500]
 learning_rate=[0.1,0.2,0.3]
 #all combination of parameter
-parameters = product(max_depth,n_estimators)
+parameters = product(max_depth,n_estimators,learning_rate)
 
 #folding for cross validation
 kf = KFold(n_splits=5, shuffle= True, random_state=42)
@@ -75,14 +75,12 @@ for param in parameters:
         tpr=dict()
         roc_auc=dict()
         for cat in n_classes:
-            fpr[cat], tpr[cat], _ = roc_curve(y_test[:, cat], y_score[:, cat])
-            roc_auc[cat] = auc(fpr[cat], tpr[cat])
-            
-        # Compute micro-average ROC curve and ROC area
-        fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(),y_score.ravel())
-        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
-
-    f.write('max_depth = {0}, n_estimator = {1}, roc_auc_micro_score = {2} \n'.format(
-        param[0],param[1],roc_auc['micro']))
+            fpr[cat], tpr[cat], _ = roc_curve(y_test.loc[:, 'category_{0}'.format(cat)].values, y_score[:, cat])
+            roc_auc[cat] = auc(fpr[cat], tpr[cat]) 
+            # Compute micro-average ROC curve and ROC area
+            fpr["micro"], tpr["micro"], _ = roc_curve(y_test.loc[:, 'category_0':'category_{0}'.format(n_classes)].values.ravel(),y_score.ravel())
+            roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+        f.write('max_depth = {0}, n_estimator = {1}, learning_rate = {2}, roc_auc_micro_score = {3} \n'.format(
+            param[0],param[1],param[2],roc_auc['micro']))
 
 
