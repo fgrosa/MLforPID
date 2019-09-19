@@ -4,3 +4,5 @@
 */*.parquet.gzip
 __pycache__/
 .DS_Store
+*.txt
+*/*.txt
