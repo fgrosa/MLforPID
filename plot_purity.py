@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import os
 import argparse
-
+from itertools import product
 
 def plotfinale2(file):
     """This function plot in a 2D histogram the data in the
@@ -21,7 +21,7 @@ def plotfinale2(file):
 
     # create dataframe for dictionaries
     for k in data:
-        data[k] = pd.read_parquet(data[k]).iloc[:1000]
+        data[k] = pd.read_parquet(data[k])
 
     # data dataframe
     data_pure = {}
@@ -40,65 +40,60 @@ def plotfinale2(file):
 
     #width for hist
     width3 = [0.3, 0.5, 0.75, 1, 1.5, 3, 5, 10]
-    width2 = [0, 0.3, 0.5, 0.75, 1, 1.5, 3, 5, 10]
+    width2 = [0.3, 0.5, 0.75, 1, 1.5, 3, 5, 10]
     width = np.arange(0,6,0.1)
 
     #labels and colors
-    color = ['blue','yellow','green','red','grey','black', 'purple']
+    color = ['blue','yellow','green','red']
+    color2 = ['grey','black', 'purple']
     nomi = ['electrons', 'pions', 'kaons', 'protons','He3','tritons','deuterons','pure','raw']
-    labels = {'e': 'electrons', 'pi': 'pions', 'kaons': 'kaons', 'p': 'protons',
-              'He3': 'He', 'triton': 'triton', 'deuterons': 'deuterons'}
+    labels = {'e': 'electrons', 'pi': 'pions', 'kaons': 'kaons', 'p': 'protons'}
+    labels2 = {'He3': 'He', 'triton': 'triton', 'deuterons': 'deuterons'}
 
     #pure data vs raw percentage, dividing species in two groups for better visualization
     np.seterr(divide='ignore', invalid='ignore')
-    xer = []
+    xer, x = [], []
 
-    for binposition in range(len(width3)):
-        xer.append((width3[binposition]-width3[binposition-1])/2)
-        if xer[binposition] < 0:
-            xer[binposition] = 0
+    for binposition in range(len(width3)-1):
+        xer.append((width3[binposition+1]-width3[binposition])/2)
+        x.append((width3[binposition]+width3[binposition+1])/2)
 
-    z=0
-    for j in labels:
-        plt.figure(3)
-        plt.subplot(2,2,z+1)
+    fig1, axes = plt.subplots(2, 2, figsize=[12, 7])
+    for ipad, (j, index) in enumerate(zip(labels, product([0,1], [0,1]))):
+        # plt.figure(3)
+        # plt.subplot(2,2,z+1)
         dfraw = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
         dfpure = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin=lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
         dfrawcount = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
         dfpurecount = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
         yer = np.divide(np.sqrt(np.asarray(dfpurecount)*(1 - np.divide(dfpurecount,dfrawcount))),dfrawcount)
-        plt.scatter(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), marker='o', c=color[z])
-        plt.errorbar(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), fmt='.k', capsize=3, elinewidth=0.5)    
-        plt.title(nomi[z])
-        plt.axis([-1,7,0,1.1])    
-        plt.xlabel('log(P)')
-        plt.ylabel('% pure')
+        # axes[index[0], index[1]].scatter(width3, np.divide(dfpure,dfraw), marker='o', c=color[ipad])
+        # plt.errorbar(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), fmt='.k', capsize=3, elinewidth=0.5)
+        axes[index[0], index[1]].errorbar(x, np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), c=color[ipad], fmt='o', ecolor='k', capsize=3, elinewidth=0.5, marker='o')
+        axes[index[0], index[1]].set_xlabel('p (GeV/c)')
+        axes[index[0], index[1]].set_ylabel('purity')
+        axes[index[0], index[1]].set_xscale('log')
+        axes[index[0], index[1]].set_ylim((0., 1.2))
+        axes[index[0], index[1]].set_title(labels[j])
         plt.tight_layout()
-        z = z+1
-        if z==4:
-            break
 
-    zz=4
-    for j in labels:
-        plt.figure(4)
-        plt.subplot(2,2,zz-3)
+    fig2, axes2 = plt.subplots(2, 2, figsize=[12, 7])
+    for ipad, (j, index) in enumerate(zip(labels2, product([0,1], [0,1]))):
         dfraw = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
         dfpure = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin=lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
         dfrawcount = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
         dfpurecount = (pd.DataFrame(ptpure[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['count']}))
         yer = np.divide(np.sqrt(np.asarray(dfpurecount)*(1 - np.divide(dfpurecount,dfrawcount))),dfrawcount)
-        plt.scatter(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), marker='o', c=color[zz])
-        plt.errorbar(np.log(width3), np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), fmt='.k', capsize=3, elinewidth=0.5)    
-        plt.title(nomi[zz])
-        plt.axis([-1,7,0,1.1])    
-        plt.xlabel('log(P)')
-        plt.ylabel('% pure')
+        axes2[index[0], index[1]].errorbar(x, np.asarray(np.divide(dfpure,dfraw)), xerr = xer , yerr = np.asarray(yer), c=color2[ipad], fmt='o', ecolor='k', capsize=3, elinewidth=0.5, marker='o')
+        axes2[index[0], index[1]].set_xlabel('p (GeV/c)')
+        axes2[index[0], index[1]].set_ylabel('purity')
+        axes2[index[0], index[1]].set_xscale('log')
+        axes2[index[0], index[1]].set_ylim((0., 1.2))
+        axes2[index[0], index[1]].set_title(labels2[j])
+        axes2.flat[-1].set_visible(False)
         plt.tight_layout()
-        zz = zz+1
-        if zz==7:
-            break
 
-    plt.figure(1)
+    plt.figure(3)
     #plot hist electrons
     plt.subplot(2,2,1)
     plt.hist(ptraw['e'], bins = width, color = color[0], label = nomi[8], edgecolor='white')
@@ -137,7 +132,7 @@ def plotfinale2(file):
 
     plt.tight_layout()
 
-    plt.figure(2)
+    plt.figure(4)
 
     #plot hist deuterons
     plt.subplot(2,2,1)
@@ -166,7 +161,7 @@ def plotfinale2(file):
     plt.ylabel('conteggio')
     plt.legend()
 
-    plt.tight_layout() 
+    plt.tight_layout()
 
     plt.show()
 
@@ -174,15 +169,13 @@ def plotfinale2(file):
 PARSER = argparse.ArgumentParser(description='Arguments to pass')
 PARSER.add_argument('dir', metavar='text', default='.',
                     help='flag to search in directory, remember put all paths!')
-PARSER.add_argument('--mc', action='store_true',
-                    help='flag to search and visualize Monte Carlo file')
 ARGS = PARSER.parse_args()
 
-if ARGS.mc:
-    # files
-    files = [f for f in os.listdir(ARGS.dir) if 'MC.parquet.gzip' in f]
-    files.remove('kaons_fromTOF_MC.parquet.gzip')
 
-    # plot
-    os.chdir(ARGS.dir)
-    plotfinale2(files)
+# files
+files = [f for f in os.listdir(ARGS.dir) if 'MC.parquet.gzip' in f]
+files.remove('kaons_fromTOF_MC.parquet.gzip')
+
+# plot
+os.chdir(ARGS.dir)
+plotfinale2(files)
