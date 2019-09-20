@@ -49,7 +49,7 @@ def plotfinale2(file):
     nomi = ['electrons', 'pions', 'kaons', 'protons','He3','tritons','deuterons','pure','raw']
     labels = {'e': 'electrons', 'pi': 'pions', 'kaons': 'kaons', 'p': 'protons'}
     labels2 = {'He3': 'He', 'triton': 'triton', 'deuterons': 'deuterons'}
-
+   
     #pure data vs raw percentage, dividing species in two groups for better visualization
     np.seterr(divide='ignore', invalid='ignore')
     xer, x = [], []
@@ -76,7 +76,7 @@ def plotfinale2(file):
         axes[index[0], index[1]].set_ylim((0., 1.2))
         axes[index[0], index[1]].set_title(labels[j])
         plt.tight_layout()
-
+    
     fig2, axes2 = plt.subplots(2, 2, figsize=[12, 7])
     for ipad, (j, index) in enumerate(zip(labels2, product([0,1], [0,1]))):
         dfraw = (pd.DataFrame(ptraw[j], columns=['p']).assign(Bin = lambda x: pd.cut(x.p, bins=width2)).groupby(['Bin']).agg({'p': ['sum']}))
@@ -95,7 +95,7 @@ def plotfinale2(file):
 
     plt.figure(3)
     #plot hist electrons
-    plt.subplot(2,2,1)
+    plt.subplot(2,2,1)    
     plt.hist(ptraw['e'], bins = width, color = color[0], label = nomi[8], edgecolor='white')
     plt.hist(ptpure['e'], bins = width, color = color[3], label = nomi[7], edgecolor='white', alpha = 0.7)
     plt.title('electron sample')
