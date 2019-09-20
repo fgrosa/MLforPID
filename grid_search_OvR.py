@@ -97,8 +97,8 @@ for ipar, param in enumerate(parameters):
         list_for_df.append(tmp_list)
 
 # list of columns for df
-columns_df = ['index', 'n_estimator',
-              'max_depth', 'learning_rate', 'roc_auc_micro']
+columns_df = ['index', 'max_depth', 'n_estimator',
+               'learning_rate', 'roc_auc_micro']
 # dataframe of the results of grid search
 df_results = pd.DataFrame(list_for_df, columns=columns_df)
 # number of combination of parameters
