@@ -14,9 +14,7 @@ def multi_column(frames):
     #matrixidentity of the dimension of length of dictionary
     matrix_category=np.identity(len(frames),dtype=int)
     #creation of the new columns for dataframe 
-    list_columns = []
-    for indx in np.arange(len(frames)):
-        list_columns.append('category_' + str(indx))
+    list_columns = list(frames.keys())
     #converting to numpy array
     array_columns = np.array(list_columns,dtype=str)
     #dictionary category
