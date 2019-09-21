@@ -30,8 +30,8 @@ keys = list(map(lambda x: x.split('_')[0], files))
 data = dict(zip(keys, files))
 
 # create dataframe for dictionaries
-for keys in data:
-    data[keys] = pd.read_parquet(data[keys])
+for key in data:
+    data[key] = pd.read_parquet(data[key])
 
 print('adding category to dataframes')
 
@@ -43,12 +43,12 @@ training_columns = ['p', 'pTPC', 'ITSclsMap',
                     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-training_df = pd.concat([data[keys].iloc[:5000]
-                         for keys in data], ignore_index=True)
+training_df = pd.concat([data[key].iloc[:5000]
+                         for key in data], ignore_index=True)
 
 # traing data with training columns
 X_df = training_df[training_columns]
-Y_df = training_df.filter(keys, axis=1)
+Y_df = training_df[keys]
 
 # parameters for grid search
 max_depth = [2]  # ,3,5,8]
@@ -86,11 +86,11 @@ for ipar, param in enumerate(parameters):
         roc_auc = dict()
         for cat in n_classes:
             fpr[cat], tpr[cat], _ = roc_curve(
-                y_test.loc[:, '{0}'.format(keys[cat])].values, y_score[:, cat])
+                y_test.loc[:, keys[cat]].values, y_score[:, cat])
             roc_auc[cat] = auc(fpr[cat], tpr[cat])
             # Compute micro-average ROC curve and ROC area
             fpr["micro"], tpr["micro"], _ = roc_curve(
-                y_test.loc[:, str(keys[0]): str(keys[n_classes-1])].values.ravel(), y_score.ravel())
+                y_test.loc[:, keys[0]: keys[len(n_classes)-1]].values.ravel(), y_score.ravel())
             roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
         # temporary list
         tmp_list = [ipar, param[0], param[1], param[2], roc_auc['micro']]
