@@ -1,15 +1,13 @@
 import numpy as np
 import pandas as pd
-from math import sqrt
 import os
 import argparse
 import matplotlib.pyplot as plt
-from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import label_binarize
 from xgboost import XGBClassifier
 from sklearn.model_selection import KFold
-from sklearn.metrics import roc_curve, auc
-from Add_category import multi_column
+from Add_category import single_column
 from itertools import product
 
 # flags
@@ -30,31 +28,30 @@ keys = list(map(lambda x: x.split('_')[0], files))
 # dictionary for data
 data = dict(zip(keys, files))
 
-# create dataframe for dictionaries
-for keys in data:
-    data[keys] = pd.read_parquet(data[keys])
+for key in data:
+    data[key] = pd.read_parquet(data[key])
 
 print('adding category to dataframes')
 
 # add category to dataframes
-multi_column(data)
+single_column(data)
 
 # training columns
 training_columns = ['p', 'pTPC', 'ITSclsMap',
                     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-training_df = pd.concat([data[keys].iloc[:5000]
-                         for keys in data], ignore_index=True)
+training_df = pd.concat([data[key].iloc[:5000]
+                         for key in data], ignore_index=True)
 
 # traing data with training columns
 X_df = training_df[training_columns]
-Y_df = training_df.filter(like='category', axis=1)
+Y_df = training_df['category']
 
 # parameters for grid search
-max_depth = [2, 3]  # ,3,5,8]
-n_estimators = [100]  # ,200,500]
-learning_rate = [0.1]  # ,0.2,0.3]
+max_depth = [2,3,5,8]
+n_estimators = [100,200,500]
+learning_rate = [0.1,0.2,0.3]
 
 # all combination of parameter
 parameters = product(max_depth, n_estimators, learning_rate)
@@ -71,29 +68,29 @@ paramsvalue = []
 print('grid search started')
 
 #manual grid search
-for n,param in enumerate(parameters):
-    scores = np.array()
-    for train_in,val_in in kf.split(len(training_df)):
+for n, param in enumerate(parameters):
+    scores = []
+    for index in kf.split(training_df):
         # onevsrest classifier
-        clf = OneVsRestClassifier(XGBClassifier(n_jobs=-1, max_depth=param[0], n_estimators=param[1], learning_rate=[2]))
-        clf.fit(X_df[train_in],Y_df[train_in])
-        score = roc_auc_score(Y_df[val_in],clf.predict(X_df[val_in]),average = 'micro')
-        scores.append(score)	
-    mean = np.mean(scores)
-    std  = np.std(scores)
-    paramsvalue.append((index = {5},max_depth = {0}, n_estimator = {1}, learning_rate = {2}, roc_auc_micro_score = {3} +/- {4}).format(
-    param[0],param[1],param[2],mean,std,n))
+        x_train = X_df.iloc[index[0]]
+        y_train = Y_df.iloc[index[0]]
+        x_test = X_df.iloc[index[1]]
+        y_test = Y_df.iloc[index[1]]
+        clf = XGBClassifier(n_jobs=-1, max_depth=param[0], n_estimators=param[1], learning_rate=param[2])
+        clf.fit(x_train, y_train)
+        y_score = clf.predict_proba(x_test)
+        y_test_multi = label_binarize(y_test, classes=range(len(keys)))
+        score = roc_auc_score(y_test_multi, y_score, average = 'micro')
+        scores.append(score)
+    mean = np.mean(np.array(scores))
+    std  = np.std(np.array(scores))
+    paramsvalue.append([n,param[0],param[1],param[2],mean,std])
 
 # list of columns for df
 columns_df = ['index', 'max_depth', 'n_estimator',
-               'learning_rate', 'roc_auc_micro']
+               'learning_rate', 'mean_roc_auc', 'root_mean_square']
 # dataframe of the results of grid search
 df_results = pd.DataFrame(paramsvalue, columns=columns_df)
-# number of combination of parameters
-n_set_params = int(len(df_results)/n_folds)
-#new columns for dataframe
-df_results['root_mean_square'] = 0
-df_results['mean_roc_auc'] = 0
 
 # conversion to parquet
 df_results.to_parquet('results_grid_search.parquet.gzip', compression='gzip')
