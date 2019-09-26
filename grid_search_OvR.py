@@ -51,9 +51,9 @@ X_df = training_df[training_columns]
 Y_df = training_df[keys]
 
 # parameters for grid search
-max_depth = [2]  # ,3,5,8]
-n_estimators = [100]  # ,200,500]
-learning_rate = [0.1]  # ,0.2,0.3]
+max_depth = [2]
+n_estimators = [100] 
+learning_rate = [0.1]  
 
 # all combination of parameter
 parameters = product(max_depth, n_estimators, learning_rate)
