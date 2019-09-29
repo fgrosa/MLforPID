@@ -17,6 +17,31 @@ python3 getdataframesfromroot.py input_root_file name_TDirectoryFile output_dire
 ```
 python3 plot_hist2d.py --mc (--data) name_directory_with_files 
 ```
+where ```name_directory_with_files``` is a directory that should contain the data or MC files
+
+* plot purity of tagged samples (from MC truth only):
+```
+python3 plot_purity.py name_directory_with_files_MC 
+```
+where ```name_directory_with_files_MC``` is a directory that should contain the MC files
+
+## Grid search:
+* Grid search for one vs. rest classifier with [xgboost](https://xgboost.readthedocs.io/en/latest/) binary classifiers:
+```
+python3 grid_search_OvR.py name_directory_with_files
+```
+* Grid search for multi-class classifier with [xgboost](https://xgboost.readthedocs.io/en/latest/):
+```
+python3 grid_search_multiclass.py name_directory_with_files
+```
+in both cases ```name_directory_with_files``` is a directory that should contain the files for the grid search (either data or MC)
+
+## Training and testing:
+* Training and testing for one vs. rest classifier with [xgboost](https://xgboost.readthedocs.io/en/latest/) binary classifiers:
+```
+python3 OvsR_classifier_train_test.py name_directory_with_files
+```
+where ```name_directory_with_files``` is a directory that should contain the data or MC files
 
 ## Data samples:
 * Data: LHC17pq_cent
@@ -27,4 +52,3 @@ python3 plot_hist2d.py --mc (--data) name_directory_with_files
 * ``` git config --global user.name "<Firstname> <Lastname>" ```
 * ``` git config --global user.email <your-email-address> ``` 
 * ``` git config --global user.github <your-github-username> ``` 
-master
