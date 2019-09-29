@@ -42,7 +42,7 @@ data = dict(zip(keys, list_files))
 
 # create dataframe for dictionaries
 for key in data:
-    data[key] = pd.read_parquet(data[key]).iloc[:10000]
+    data[key] = pd.read_parquet(data[key]).iloc[:40000]
     header = data[key].select_dtypes(include=[np.float64]).columns
     # change dtype of column with float64
     data[key][header] = data[key][header].astype('float32')
@@ -58,11 +58,11 @@ train_test_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-train_df = pd.concat([data[key].iloc[:5000]
+train_df = pd.concat([data[key].iloc[:20000]
                       for key in data], ignore_index=True)
 
 # testing dataframe
-test_df = pd.concat([data[key].iloc[5000:10000]
+test_df = pd.concat([data[key].iloc[20000:40000]
                      for key in data], ignore_index=True)
 
 # train and test dataframe for classifier
@@ -93,7 +93,7 @@ lb.fit(range(len(keys)))
 # confusion matrixes
 conf_matr_train = confusion_matrix(lb.inverse_transform(y_train_df.values),
     lb.inverse_transform(y_pred_train))
-conf_matr_test = confusion_matrix(lb.inverse_transform( 
+conf_matr_test = confusion_matrix(lb.inverse_transform(
     y_test_df.values), lb.inverse_transform(y_pred_test))
 
 # normalize confusion matrix
@@ -119,7 +119,7 @@ roc_calculation(fpr_test, tpr_test, roc_auc_test,
                 y_test_df.values, y_proba_test, len(keys))
 
 # figure for plot
-f1 = plt.figure(figsize=[10, 10], constrained_layout=True)
+f1 = plt.figure(figsize=[20, 5], constrained_layout=True)
 
 # plot confusion matrix train
 ax1 = plt.subplot(1, 2, 1)
@@ -173,12 +173,12 @@ for i in range(conf_matr_test.shape[0]):
 plt.xticks(fontsize = 10)
 plt.yticks(fontsize = 10)
 
-f1.tight_layout()
+#f1.tight_layout()
 
 plt.savefig('confusion_matrix_OvsR.pdf')
 
 # new figure for roc auc
-f2 = plt.figure(figsize=[10, 10], constrained_layout=True)
+f2 = plt.figure(figsize=[10, 5], constrained_layout=True)
 # train roc auc
 plt.subplot(1, 2, 1)
 plt.title = 'Train ROC-AUC'
@@ -190,6 +190,8 @@ for ind, color in zip(range(len(keys)), colors):
 plt.plot(fpr_train["micro"], tpr_train["micro"], color='black', linestyle=':',
          label='micro-average ROC curve (area = {0:0.4f})'
                ''.format(roc_auc_train["micro"]))
+plt.xlabel('background efficiency')
+plt.ylabel('signal efficiency')
 plt.legend()
 
 # test roc auc
@@ -203,6 +205,8 @@ for ind, color in zip(range(len(keys)), colors):
 plt.plot(fpr_test["micro"], tpr_test["micro"], color='black', linestyle=':',
          label='micro-average ROC curve (area = {0:0.4f})'
                ''.format(roc_auc_test["micro"]))
+plt.xlabel('background efficiency')
+plt.ylabel('signal efficiency')
 plt.legend()
 
 f2.tight_layout()
@@ -210,8 +214,8 @@ f2.tight_layout()
 plt.savefig('ROC_AUC_OvsR.pdf')
 
 # new figure
-f3 = plt.figure(figsize=[10, 10], constrained_layout=True)
-# plot confusion matrix test
+f3 = plt.figure(figsize=[8, 8], constrained_layout=True)
+# plot correlation matrix test
 ax3 = plt.subplot(1, 1, 1)
 im3 = ax3.imshow(corr_df, plt.get_cmap('coolwarm'))
 ax3.figure.colorbar(im3, ax=ax3,)
@@ -247,7 +251,8 @@ new_conf_matr_test = new_conf_matr_test.astype(
 conf_matr_list = [new_conf_matr_train, new_conf_matr_test]
 
 # new figure and plot confusion matrixes
-f4, axes = plt.subplots(nrows=2, ncols=5, figsize=[25, 10], constrained_layout=True)
+f4, axes = plt.subplots(nrows=2, ncols=5, figsize=[15, 5])
+plt.subplots_adjust(wspace=0.5, hspace=0.5, left=0.06, right=0.98)
 for i in range(2):
     for j in range(5):
         ax = axes[i, j]
@@ -256,18 +261,21 @@ for i in range(2):
         im = ax.imshow(cm, plt.get_cmap('Blues'))
         ax.figure.colorbar(im, ax=ax)
         ax.set(xticks = np.arange(cm.shape[1]), yticks = np.arange(cm.shape[0]), xticklabels = ticks, yticklabels = ticks)
+        plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+        plt.setp(ax.get_yticklabels(), rotation=45, ha="right", rotation_mode="anchor")
         for ind_i in range(cm.shape[0]):
             for ind_j in range(cm.shape[1]):
                 ax.text(ind_j, ind_i, format(cm[ind_i, ind_j], '.4f'),
                     ha="center", va="center",
-                    color="black", fontsize=12)
+                    color="black", fontsize=10)
 
 plt.xticks(fontsize = 10)
 plt.yticks(fontsize = 10)
 
 f4.tight_layout()
 
-plt.savefig('confusion_matrix_of_species_OvsRR.pdf')
+plt.savefig('confusion_matrix_of_species_OvsR.pdf')
+#plt.subplots_adjust(wspace=None, hspace=None)
 
 #adding distribution prob.
 for key,prob in zip(keys,range(len(keys))):
@@ -277,27 +285,28 @@ for key,prob in zip(keys,range(len(keys))):
 
 #plot distribution of probabilities
 #color dictionary
-col = {'e': 'blue', 'pi': 'orangered', 'kaons': 'red',
+col = {'electrons': 'blue', 'pi': 'orangered', 'kaons': 'red',
     'protons': 'green', 'deuterons': 'grey'}
 
-for ind_key in range(len(keys)):
-    fighist = plt.figure()
+for prob_key in keys:
+    fighist = plt.figure(figsize=[10,8])
     for key in keys:
         #plot histogram
-        plt.hist(train_df.loc[train_df[key] == 1]['prob_{0}'.format(key)], color = col[key],
+        plt.hist(train_df.loc[train_df[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
         alpha =0.5, bins = 50, histtype='stepfilled', density=True,
         label = '{0}_train'.format(key), log=True)
         #error_bar
-        hist, bins = np.histogram(test_df.loc[test_df[key] == 1]['prob_{0}'.format(key)].values, bins = 50, density = True )
+        hist, bins = np.histogram(test_df.loc[test_df[key] == 1]['prob_{0}'.format(prob_key)].values, bins = 50, density = True )
         scale = len(test_df) / sum(hist)
         err = np.sqrt(hist * scale) / scale
         center = (bins[:-1] + bins[1:]) / 2
         plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_test'.format(key))
     plt.xlabel('probability')
-    plt.ylabel('log(entries)')   
+    plt.ylabel('log(entries)')
+    plt.xlim(0,1)
     plt.legend(loc='best')
-    fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(keys[ind_key]))
-        
+    fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(prob_key))
+
 
 plt.show()
 
