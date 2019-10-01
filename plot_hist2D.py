@@ -203,16 +203,16 @@ if ARGS.mc:
     # files
     files = [f for f in os.listdir(ARGS.dir) if 'MC.parquet.gzip' in f]
     files.remove('kaons_fromTOF_MC.parquet.gzip')
-
-    # plot
     os.chdir(ARGS.dir)
+    # plot
+    
     hist2D_MC(files)
 
 elif ARGS.data:
     # files
     files = [f for f in os.listdir(ARGS.dir) if '_data.parquet.gzip' in f]
     files.remove('kaons_fromTOF_data.parquet.gzip')
-
-    # plot
     os.chdir(ARGS.dir)
+    # plot
+    
     hist2D_data(files)

@@ -2,13 +2,15 @@ import os
 import argparse
 import numpy as np
 import pandas as pd
+import pickle
 import matplotlib.pyplot as plt
 from xgboost import XGBClassifier
 from sklearn.metrics import roc_curve, auc, multilabel_confusion_matrix, confusion_matrix
 from sklearn.multiclass import OneVsRestClassifier
+from sklearn.preprocessing import LabelBinarizer
 from Add_category import multi_column
 from itertools import cycle
-from sklearn.preprocessing import LabelBinarizer
+
 
 # function for calculation of roc auc micro average
 def roc_calculation(fpr, tpr, roc_auc, y_test, y_score, n_species):
@@ -42,10 +44,10 @@ data = dict(zip(keys, list_files))
 
 # create dataframe for dictionaries
 for key in data:
-    data[key] = pd.read_parquet(data[key]).iloc[:40000]
+    data[key] = pd.read_parquet(data[key])
     header = data[key].select_dtypes(include=[np.float64]).columns
     # change dtype of column with float64
-    data[key][header] = data[key][header].astype('float32')
+    data[key][header] = data[key][header].astype('float16')
 
 # message of ongoing compilation
 print('adding category to dataframes')
@@ -58,11 +60,11 @@ train_test_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-train_df = pd.concat([data[key].iloc[:20000]
+train_df = pd.concat([data[key].iloc[:int(len(data[key])/5)]
                       for key in data], ignore_index=True)
 
 # testing dataframe
-test_df = pd.concat([data[key].iloc[20000:40000]
+test_df = pd.concat([data[key].iloc[int(len(data[key])/5):]
                      for key in data], ignore_index=True)
 
 # train and test dataframe for classifier
@@ -77,6 +79,10 @@ clf = OneVsRestClassifier(XGBClassifier(
 
 # training classifier
 clf.fit(x_train_df, y_train_df)
+
+#save model trained
+pickle.dump(clf, open('OvsR_trained.pkl', 'wb'))
+
 
 # prediction of classifier
 y_pred_train = clf.predict(x_train_df)
@@ -140,10 +146,10 @@ plt.setp(ax1.get_xticklabels(), rotation=45, ha="right",
 
 #add values in the middle of the cell
 for i in range(conf_matr_test.shape[0]):
-        for j in range(conf_matr_train.shape[1]):
-            ax1.text(j, i, format(conf_matr_train[i, j], '.4f'),
-                    ha="center", va="center",
-                    color="black", fontsize=12)
+    for j in range(conf_matr_train.shape[1]):
+        ax1.text(j, i, format(conf_matr_train[i, j], '.4f'),
+            ha="center", va="center",
+            color="black", fontsize=12)
 
 plt.xticks(fontsize = 10)
 plt.yticks(fontsize = 10)
@@ -151,7 +157,7 @@ plt.yticks(fontsize = 10)
 # plot confusion matrix test
 ax2 = plt.subplot(1, 2, 2)
 im2 = ax2.imshow(conf_matr_test, interpolation='nearest',
-                 cmap=plt.get_cmap('Greens'))
+    cmap=plt.get_cmap('Greens'))
 ax2.figure.colorbar(im2, ax=ax2)
 ax2.set(xticks=np.arange(conf_matr_test.shape[1]),
         yticks=np.arange(conf_matr_test.shape[0]),
@@ -165,10 +171,10 @@ plt.setp(ax2.get_xticklabels(), rotation=45, ha="right",
 
 #add values in the middle of the cell
 for i in range(conf_matr_test.shape[0]):
-        for j in range(conf_matr_test.shape[1]):
-            ax2.text(j, i, format(conf_matr_test[i, j], '.4f'),
-                    ha="center", va="center",
-                    color="black", fontsize=12)
+    for j in range(conf_matr_test.shape[1]):
+        ax2.text(j, i, format(conf_matr_test[i, j], '.4f'),
+            ha="center", va="center",
+            color="black", fontsize=12)
 
 plt.xticks(fontsize = 10)
 plt.yticks(fontsize = 10)
@@ -183,7 +189,7 @@ f2 = plt.figure(figsize=[10, 5], constrained_layout=True)
 plt.subplot(1, 2, 1)
 plt.title = 'Train ROC-AUC'
 colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in zip(range(len(keys)), colors):
+for ind, color in enumerate(colors):
     plt.plot(fpr_train[ind], tpr_train[ind], color=color,
              label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_train[ind]))
@@ -198,7 +204,7 @@ plt.legend()
 plt.subplot(1, 2, 2)
 plt.title = 'Test ROC-AUC'
 colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in zip(range(len(keys)), colors):
+for ind, color in enumerate(colors):
     plt.plot(fpr_test[ind], tpr_test[ind], color=color,
              label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_test[ind]))
@@ -230,10 +236,10 @@ plt.setp(ax3.get_xticklabels(), rotation=45, ha="right",
 
 #add values in the middle of the cell
 for i in range(corr_df.values.shape[0]):
-        for j in range(corr_df.values.shape[1]):
-            ax3.text(j, i, format(corr_df.values[i, j], '.4f'),
-                    ha="center", va="center",
-                    color="black",fontsize=12)
+    for j in range(corr_df.values.shape[1]):
+        ax3.text(j, i, format(corr_df.values[i, j], '.4f'),
+            ha="center", va="center",
+            color="black",fontsize=12)
 
 plt.xticks(fontsize = 10)
 plt.yticks(fontsize = 10)
@@ -277,13 +283,13 @@ f4.tight_layout()
 plt.savefig('confusion_matrix_of_species_OvsR.pdf')
 #plt.subplots_adjust(wspace=None, hspace=None)
 
+#plot distribution of probabilities
+
 #adding distribution prob.
-for key,prob in zip(keys,range(len(keys))):
+for key,prob in enumerate(keys):
     train_df['prob_{0}'.format(key)] = y_proba_train[:, prob]
     test_df['prob_{0}'.format(key)] = y_proba_test[:, prob]
 
-
-#plot distribution of probabilities
 #color dictionary
 col = {'electrons': 'blue', 'pi': 'orangered', 'kaons': 'red',
     'protons': 'green', 'deuterons': 'grey'}
