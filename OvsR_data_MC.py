@@ -31,6 +31,7 @@ data_files = [f for f in os.listdir(ARGS.data_dir) if (
 data_files.remove('kaons_fromTOF_data.parquet.gzip')
 data_files.remove('He3_fromTOFTPC_data.parquet.gzip')
 data_files.remove('triton_fromTOFTPC_data.parquet.gzip')
+data_files.sort()
 os.chdir(ARGS.data_dir)
 
 # keys for data
@@ -63,6 +64,7 @@ mc_files = [f for f in os.listdir(ARGS.mc_dir) if (
 mc_files.remove('kaons_fromTOF_MC.parquet.gzip')
 mc_files.remove('He3_fromTOFTPC_MC.parquet.gzip')
 mc_files.remove('triton_fromTOFTPC_MC.parquet.gzip')
+mc_files.sort()
 os.chdir(ARGS.mc_dir)
 
 # pdgcode
@@ -86,16 +88,12 @@ for key in df_mc:
 #add category to dataframe
 multi_column(df_mc)
 
-#order mc keys and mc files by name
-mc_keys.sort()
-mc_files.sort()
-
 #columns used to fit
 target_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 #all dataframe for testing and roc auc
-df_data_test = pd.concat([df_data[key].iloc[20000:40000]
+df_data_test = pd.concat([df_data[key].iloc[50000:100000]
                      for key in df_data], ignore_index=True)
 
 #predict data based on the target columns
@@ -116,12 +114,10 @@ roc_auc_data = dict()
 roc_auc_mc = dict()
 
 #calculation of roc_auc_data
-print(df_data_test.values)
-print(df_data_pred_proba)
 roc_calculation(fpr_data, tpr_data, roc_auc_data,
-    df_data_test.values, df_data_pred_proba, len(df_data))
+    df_data_test[data_keys].values, df_data_pred_proba, len(df_data))
 roc_calculation(fpr_mc, tpr_mc, roc_auc_mc,
-    df_mc_test.values, df_mc_pred_proba, len(df_data))
+    df_mc_test[mc_keys].values, df_mc_pred_proba, len(df_data))
 
 #roc auc curve
 # new figure for roc auc
@@ -139,6 +135,7 @@ plt.plot(fpr_data["micro"], tpr_data["micro"], color='black', linestyle=':',
                ''.format(roc_auc_data["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
+plt.ylim(0,1)
 plt.legend()
 
 # test roc auc
@@ -154,6 +151,7 @@ plt.plot(fpr_mc["micro"], tpr_mc["micro"], color='black', linestyle=':',
                ''.format(roc_auc_mc["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
+plt.ylim(0,1)
 plt.legend()
 
 f.tight_layout()
@@ -162,7 +160,7 @@ plt.savefig('ROC_AUC_OvsR_data_mc.pdf')
 
 
 #adding distribution prob.
-for key, prob in enumerate(df_mc):
+for prob, key in enumerate(df_mc):
     df_data_test['prob_{0}'.format(key)] = df_data_pred_proba[:, prob]
     df_mc_test['prob_{0}'.format(key)] = df_mc_pred_proba[:, prob]
 
@@ -177,15 +175,15 @@ for prob_key in df_data:
         #plot histogram
         plt.hist(df_data_test.loc[df_data_test[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
         alpha =0.5, bins = 50, histtype='stepfilled', density=True,
-        label = '{0}_train'.format(key), log=True)
+        label = '{0}_data'.format(key), log=True)
         #error_bar
         hist, bins = np.histogram(df_mc_test.query('PDGcode == {0}'.format(pdg[key]))['prob_{0}'.format(prob_key)].values, bins = 50, density = True )
         scale = len(df_mc_test) / sum(hist)
         err = np.sqrt(hist * scale) / scale
         center = (bins[:-1] + bins[1:]) / 2
-        plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_test'.format(key))
-    plt.xlabel('probability')
-    plt.ylabel('log(entries)')
+        plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_MC'.format(key))
+    plt.xlabel('probability to be {0}'.format(key))
+    plt.ylabel('entries-log scale')
     plt.xlim(0,1)
     plt.legend(loc='best')
     fighist.savefig('probability_distribution_of_{0}_and_OvsR_data_mc.pdf'.format(prob_key))
