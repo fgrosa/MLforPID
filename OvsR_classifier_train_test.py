@@ -30,6 +30,7 @@ list_files = [f for f in os.listdir(ARGS.dir) if (
 list_files.remove('kaons_fromTOF_data.parquet.gzip')
 list_files.remove('He3_fromTOFTPC_data.parquet.gzip')
 list_files.remove('triton_fromTOFTPC_data.parquet.gzip')
+list_files.sort()
 os.chdir(ARGS.dir)
 
 
@@ -57,11 +58,11 @@ train_test_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-train_df = pd.concat([data[key].iloc[:int(len(data[key])/5)]
+train_df = pd.concat([data[key].iloc[:100]
                       for key in data], ignore_index=True)
 
 # testing dataframe
-test_df = pd.concat([data[key].iloc[int(len(data[key])/5):]
+test_df = pd.concat([data[key].iloc[100:200]
                      for key in data], ignore_index=True)
 
 # train and test dataframe for classifier
@@ -283,7 +284,7 @@ plt.savefig('confusion_matrix_of_species_OvsR.pdf')
 #plot distribution of probabilities
 
 #adding distribution prob.
-for key,prob in enumerate(keys):
+for prob, key in enumerate(keys):
     train_df['prob_{0}'.format(key)] = y_proba_train[:, prob]
     test_df['prob_{0}'.format(key)] = y_proba_test[:, prob]
 
