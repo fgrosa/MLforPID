@@ -189,7 +189,7 @@ f2 = plt.figure(figsize=[10, 5], constrained_layout=True)
 plt.subplot(1, 2, 1)
 plt.title = 'Train ROC-AUC'
 colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in enumerate(colors):
+for ind, color in zip(range(len(keys)), colors):
     plt.plot(fpr_train[ind], tpr_train[ind], color=color,
              label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_train[ind]))
@@ -204,7 +204,7 @@ plt.legend()
 plt.subplot(1, 2, 2)
 plt.title = 'Test ROC-AUC'
 colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in enumerate(colors):
+for ind, color in zip(range(len(keys)), colors):
     plt.plot(fpr_test[ind], tpr_test[ind], color=color,
              label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_test[ind]))
