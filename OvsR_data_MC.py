@@ -23,6 +23,8 @@ PARSER.add_argument('mc_dir', metavar='text', default='.',
     help='flag to search in MC directory, remember put all paths!')
 ARGS = PARSER.parse_args()
 
+currentdir = os.getcwd()
+
 # data_files necessary
 data_files = [f for f in os.listdir(ARGS.data_dir) if (
     'data.parquet.gzip' in f and not f.startswith("._"))]
@@ -47,10 +49,15 @@ for key in df_data:
 #add category to df
 multi_column(df_data)
 
+#order data keys and data files by name
+data_keys.sort()
+data_files.sort()
+
 #load model saved
 clf = pickle.load(open('OvsR_trained.pkl', 'rb'))
 
 # MC_files necessary
+os.chdir(currentdir)
 mc_files = [f for f in os.listdir(ARGS.mc_dir) if (
     'MC.parquet.gzip' in f and not f.startswith("._"))]
 mc_files.remove('kaons_fromTOF_MC.parquet.gzip')
@@ -59,7 +66,7 @@ mc_files.remove('triton_fromTOFTPC_MC.parquet.gzip')
 os.chdir(ARGS.mc_dir)
 
 # pdgcode
-pdg = {'e': 11, 'pi': 211, 'kaons': 321, 'p': 2212,
+pdg = {'electrons': 11, 'pi': 211, 'kaons': 321, 'protons': 2212,
     'He3': 1000020030, 'triton': 1000010030, 'deuterons': 1000010020}
 
 # keys for mc
@@ -76,12 +83,19 @@ for key in df_mc:
     df_mc[key][header] = df_mc[key][header].astype('float16')
     df_mc[key] = df_mc[key].query('PDGcode == {0}'.format(pdg[key]))
 
+#add category to dataframe
+multi_column(df_mc)
+
+#order mc keys and mc files by name
+mc_keys.sort()
+mc_files.sort()
+
 #columns used to fit
 target_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 #all dataframe for testing and roc auc
-df_data_test = pd.concat([df_data[key].iloc[int(len(df_data[key])/5):]
+df_data_test = pd.concat([df_data[key].iloc[20000:40000]
                      for key in df_data], ignore_index=True)
 
 #predict data based on the target columns
@@ -91,9 +105,9 @@ df_data_pred_proba = clf.predict_proba(df_data_test[target_columns])
 df_mc_test = pd.concat([df_mc[key] for key in df_mc], ignore_index=True)
 
 #predict mc based on target column
-df_mc_pred_proba = clf.predict_proba(df_mc[target_columns])
+df_mc_pred_proba = clf.predict_proba(df_mc_test[target_columns])
 
-#fpr ,tpr and roc_auc 
+#fpr ,tpr and roc_auc
 fpr_data = dict()
 tpr_data = dict()
 fpr_mc = dict()
@@ -102,10 +116,12 @@ roc_auc_data = dict()
 roc_auc_mc = dict()
 
 #calculation of roc_auc_data
+print(df_data_test.values)
+print(df_data_pred_proba)
 roc_calculation(fpr_data, tpr_data, roc_auc_data,
-    df_data_test.values, df_data_pred_proba, len(data_keys))
+    df_data_test.values, df_data_pred_proba, len(df_data))
 roc_calculation(fpr_mc, tpr_mc, roc_auc_mc,
-    df_mc_test.values, df_mc_pred_proba, len(mc_keys))
+    df_mc_test.values, df_mc_pred_proba, len(df_data))
 
 #roc auc curve
 # new figure for roc auc
@@ -146,7 +162,7 @@ plt.savefig('ROC_AUC_OvsR_data_mc.pdf')
 
 
 #adding distribution prob.
-for key, prob in enumerate(mc_keys):
+for key, prob in enumerate(df_mc):
     df_data_test['prob_{0}'.format(key)] = df_data_pred_proba[:, prob]
     df_mc_test['prob_{0}'.format(key)] = df_mc_pred_proba[:, prob]
 
@@ -155,9 +171,9 @@ col = {'electrons': 'blue', 'pi': 'orangered', 'kaons': 'red',
     'protons': 'green', 'deuterons': 'grey'}
 
 #plot of keys
-for prob_key in data_keys:
+for prob_key in df_data:
     fighist = plt.figure(figsize=[10,8])
-    for key in data_keys:
+    for key in df_data:
         #plot histogram
         plt.hist(df_data_test.loc[df_data_test[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
         alpha =0.5, bins = 50, histtype='stepfilled', density=True,
