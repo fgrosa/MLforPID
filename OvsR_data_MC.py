@@ -6,7 +6,6 @@ import pickle
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 from Add_category import multi_column
-from itertools import cycle
 #function for later
 def roc_calculation(fpr, tpr, roc_auc, y_test, y_score, n_species):
     for species in range(n_species):
@@ -114,8 +113,8 @@ f = plt.figure(figsize=[10, 5], constrained_layout=True)
 # train roc auc
 plt.subplot(1, 2, 1)
 plt.title = 'Data ROC-AUC'
-colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in zip(range(len(data_keys)), colors):
+colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
+for ind, color in enumerate (colors):
     plt.plot(fpr_data[ind], tpr_data[ind], color=color,
              label='ROC curve of ' + data_keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_data[ind]))
@@ -129,8 +128,8 @@ plt.legend()
 # test roc auc
 plt.subplot(1, 2, 2)
 plt.title = 'MC ROC-AUC'
-colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in zip(range(len(data_keys)), colors):
+colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
+for ind, color in enumerate(colors):
     plt.plot(fpr_mc[ind], tpr_mc[ind], color=color,
              label='ROC curve of ' + mc_keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_mc[ind]))
@@ -143,7 +142,7 @@ plt.legend()
 
 f.tight_layout()
 
-plt.savefig('ROC_AUC_OvsR.pdf')
+plt.savefig('ROC_AUC_OvsR_data_mc.pdf')
 
 
 #adding distribution prob.
@@ -173,7 +172,7 @@ for prob_key in data_keys:
     plt.ylabel('log(entries)')
     plt.xlim(0,1)
     plt.legend(loc='best')
-    fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(prob_key))
+    fighist.savefig('probability_distribution_of_{0}_and_OvsR_data_mc.pdf'.format(prob_key))
 
 
 plt.show()

@@ -9,9 +9,6 @@ from sklearn.metrics import roc_curve, auc, multilabel_confusion_matrix, confusi
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import LabelBinarizer
 from Add_category import multi_column
-from itertools import cycle
-
-
 # function for calculation of roc auc micro average
 def roc_calculation(fpr, tpr, roc_auc, y_test, y_score, n_species):
     for species in range(n_species):
@@ -188,8 +185,8 @@ f2 = plt.figure(figsize=[10, 5], constrained_layout=True)
 # train roc auc
 plt.subplot(1, 2, 1)
 plt.title = 'Train ROC-AUC'
-colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in zip(range(len(keys)), colors):
+colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
+for ind, color in enumerate(colors):
     plt.plot(fpr_train[ind], tpr_train[ind], color=color,
              label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_train[ind]))
@@ -203,8 +200,8 @@ plt.legend()
 # test roc auc
 plt.subplot(1, 2, 2)
 plt.title = 'Test ROC-AUC'
-colors = cycle(['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue'])
-for ind, color in zip(range(len(keys)), colors):
+colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
+for ind, color in enumerate(colors):
     plt.plot(fpr_test[ind], tpr_test[ind], color=color,
              label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
              ''.format(roc_auc_test[ind]))
