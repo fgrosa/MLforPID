@@ -93,7 +93,7 @@ columns_df = ['index', 'max_depth', 'n_estimator',
 df_results = pd.DataFrame(paramsvalue, columns=columns_df)
 
 # conversion to parquet
-df_results.to_parquet('results_grid_search.parquet.gzip', compression='gzip')
+df_results.to_parquet('results_grid_search_multiclass.parquet.gzip', compression='gzip')
 print('dataframe of the results of grid search saved')
 
 # plotting datas of average_roc_auc_micro in function of index
