@@ -3,7 +3,7 @@ import numpy as np
 def single_column(frames):
     '''adding a single column to every dataframe in dict and assigning '''
     #order dataframe by key to avoid errors
-    cat_dict  = dict(enumerate(sorted(frames)))
+    cat_dict  = dict(zip(sorted(frames), range(len(frames))))
     for keys in frames:
         frames[keys]['category'] = cat_dict[keys]
     print('category assigned :' + str(cat_dict))
