@@ -182,7 +182,7 @@ for prob_key in df_data:
         err = np.sqrt(hist * scale) / scale
         center = (bins[:-1] + bins[1:]) / 2
         plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_MC'.format(key))
-    plt.xlabel('probability to be {0}'.format(key))
+    plt.xlabel('probability to be {0}'.format(prob_key))
     plt.ylabel('entries-log scale')
     plt.xlim(0,1)
     plt.legend(loc='best')
