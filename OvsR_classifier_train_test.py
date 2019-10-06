@@ -185,7 +185,7 @@ plt.savefig('confusion_matrix_OvsR.pdf')
 f2 = plt.figure(figsize=[10, 5], constrained_layout=True)
 # train roc auc
 plt.subplot(1, 2, 1)
-plt.title = 'Train ROC-AUC'
+plt.title('Train ROC-AUC')
 colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
 for ind, color in enumerate(colors):
     plt.plot(fpr_train[ind], tpr_train[ind], color=color,
@@ -200,7 +200,7 @@ plt.legend()
 
 # test roc auc
 plt.subplot(1, 2, 2)
-plt.title = 'Test ROC-AUC'
+plt.title('Test ROC-AUC')
 colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
 for ind, color in enumerate(colors):
     plt.plot(fpr_test[ind], tpr_test[ind], color=color,
