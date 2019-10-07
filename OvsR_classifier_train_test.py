@@ -196,7 +196,8 @@ plt.plot(fpr_train["micro"], tpr_train["micro"], color='black', linestyle=':',
                ''.format(roc_auc_train["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
-plt.legend()
+plt.ylim(0,1.2)
+plt.legend(loc ='lower right')
 
 # test roc auc
 plt.subplot(1, 2, 2)
@@ -211,7 +212,8 @@ plt.plot(fpr_test["micro"], tpr_test["micro"], color='black', linestyle=':',
                ''.format(roc_auc_test["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
-plt.legend()
+plt.legend(loc ='lower right')
+plt.ylim(0,1.2)
 
 f2.tight_layout()
 
