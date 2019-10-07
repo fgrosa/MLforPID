@@ -62,7 +62,7 @@ train_df = pd.concat([data[key].iloc[:50000]
                       for key in data], ignore_index=True)
 
 # testing dataframe
-test_df = pd.concat([data[key].iloc[50000:100000]
+test_df = pd.concat([data[key].iloc[50000:]
                      for key in data], ignore_index=True)
 
 # train and test dataframe for classifier
@@ -196,7 +196,6 @@ plt.plot(fpr_train["micro"], tpr_train["micro"], color='black', linestyle=':',
                ''.format(roc_auc_train["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
-plt.ylim(0,1.2)
 plt.legend(loc ='lower right')
 
 # test roc auc
@@ -213,7 +212,6 @@ plt.plot(fpr_test["micro"], tpr_test["micro"], color='black', linestyle=':',
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
 plt.legend(loc ='lower right')
-plt.ylim(0,1.2)
 
 f2.tight_layout()
 
@@ -297,26 +295,23 @@ col = {'electrons': 'blue', 'pi': 'orangered', 'kaons': 'red',
 for prob_key in keys:
     fighist = plt.figure(figsize=[10,8])
     for key in keys:
-        #plot histogram
-        plt.hist(train_df.loc[train_df[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
-        alpha = 0.25, bins = 100, histtype='stepfilled', density=True, range=(1.e-4, 1),
-        label = '{0}_train'.format(key), log=True)
-        plt.hist(train_df.loc[train_df[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
-        alpha = 1, bins = 100, histtype='step', density=True, range=(1.e-4, 1),
-        label = '{0}_train'.format(key), log=True)
+       #plot histogram
+        hist, bins, _ = plt.hist(train_df.loc[train_df[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
+        alpha = 1, bins = 100, histtype='step', density=True, label = '{0}_train'.format(key), log=True)
+        center = (bins[:-1] + bins[1:]) / 2
+        plt.fill_between(center, [1.e-4 for b in range(len(center))], hist, color = col[key], alpha=0.25)
+        plt.ylim(1.e-4,2.e2)
         #error_bar
         hist, bins = np.histogram(test_df.loc[test_df[key] == 1]['prob_{0}'.format(prob_key)].values, bins = 100, density = True )
         scale = len(test_df) / sum(hist)
         err = np.sqrt(hist * scale) / scale
-        center = (bins[:-1] + bins[1:]) / 2
         plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_test'.format(key))
     plt.xlabel('probability to be {0}'.format(prob_key))
-    plt.ylabel('entries-log scale')
+    plt.ylabel('entries')
     plt.xlim(0,1)
     plt.legend(loc='best')
     fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(prob_key))
-
-
+    
 plt.show()
 
 print('done')
