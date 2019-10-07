@@ -124,7 +124,7 @@ roc_calculation(fpr_mc, tpr_mc, roc_auc_mc,
 f = plt.figure(figsize=[10, 5], constrained_layout=True)
 # train roc auc
 plt.subplot(1, 2, 1)
-plt.title = 'Data ROC-AUC'
+plt.title('Data ROC-AUC')
 colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
 for ind, color in enumerate (colors):
     plt.plot(fpr_data[ind], tpr_data[ind], color=color,
@@ -135,12 +135,11 @@ plt.plot(fpr_data["micro"], tpr_data["micro"], color='black', linestyle=':',
                ''.format(roc_auc_data["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
-plt.ylim(0,1)
-plt.legend()
+plt.legend(loc ='lower right')
 
 # test roc auc
 plt.subplot(1, 2, 2)
-plt.title = 'MC ROC-AUC'
+plt.title('MC ROC-AUC')
 colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
 for ind, color in enumerate(colors):
     plt.plot(fpr_mc[ind], tpr_mc[ind], color=color,
@@ -151,8 +150,8 @@ plt.plot(fpr_mc["micro"], tpr_mc["micro"], color='black', linestyle=':',
                ''.format(roc_auc_mc["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
-plt.ylim(0,1)
-plt.legend()
+plt.legend(loc ='lower right')
+plt.ylim(0,1.2)
 
 f.tight_layout()
 
@@ -173,20 +172,20 @@ for prob_key in df_data:
     fighist = plt.figure(figsize=[10,8])
     for key in df_data:
         #plot histogram
-        plt.hist(df_data_test.loc[df_data_test[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
-        alpha =0.5, bins = 50, histtype='stepfilled', density=True,
-        label = '{0}_data'.format(key), log=True)
-        #error_bar
-        hist, bins = np.histogram(df_mc_test.query('PDGcode == {0}'.format(pdg[key]))['prob_{0}'.format(prob_key)].values, bins = 50, density = True )
-        scale = len(df_mc_test) / sum(hist)
-        err = np.sqrt(hist * scale) / scale
+        hist, bins, _ = plt.hist(df_data_test.loc[df_data_test[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
+        alpha = 1, bins = 100, histtype='step', density=True, label = '{0}_data'.format(key), log=True)
         center = (bins[:-1] + bins[1:]) / 2
+        plt.fill_between(center, [1.e-4 for b in range(len(center))], hist, color = col[key], alpha=0.25)
+        plt.ylim(1.e-4,2.e2)
+        #error_bar
+        hist, bins = np.histogram(df_mc_test.loc[df_mc_test[key] == 1]['prob_{0}'.format(prob_key)].values, bins = 100, density = True )
+        scale = len(test_df) / sum(hist)
+        err = np.sqrt(hist * scale) / scale
         plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_MC'.format(key))
-    plt.xlabel('probability to be {0}'.format(key))
-    plt.ylabel('entries-log scale')
+    plt.xlabel('probability to be {0}'.format(prob_key))
+    plt.ylabel('entries')
     plt.xlim(0,1)
     plt.legend(loc='best')
-    fighist.savefig('probability_distribution_of_{0}_and_OvsR_data_mc.pdf'.format(prob_key))
-
+    fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(prob_key))
 
 plt.show()

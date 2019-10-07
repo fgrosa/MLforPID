@@ -126,7 +126,7 @@ for ind_df in range(n_set_params):
 df_results = df_results.drop(columns='residuals')
 
 # conversion to parquet
-df_results.to_parquet('results_grid_search.parquet.gzip', compression='gzip')
+df_results.to_parquet('results_grid_search_OvsR.parquet.gzip', compression='gzip')
 print('dataframe of the results of grid search saved')
 
 # plotting datas of average_roc_auc_micro in function of index
