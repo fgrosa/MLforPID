@@ -297,10 +297,13 @@ for prob_key in keys:
     for key in keys:
         #plot histogram
         plt.hist(train_df.loc[train_df[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
-        alpha =0.5, bins = 50, histtype='stepfilled', density=True,
+        alpha = 0.25, bins = 100, histtype='stepfilled', density=True, range=(1.e-4, 1),
+        label = '{0}_train'.format(key), log=True)
+        plt.hist(train_df.loc[train_df[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
+        alpha = 1, bins = 100, histtype='step', density=True, range=(1.e-4, 1),
         label = '{0}_train'.format(key), log=True)
         #error_bar
-        hist, bins = np.histogram(test_df.loc[test_df[key] == 1]['prob_{0}'.format(prob_key)].values, bins = 50, density = True )
+        hist, bins = np.histogram(test_df.loc[test_df[key] == 1]['prob_{0}'.format(prob_key)].values, bins = 100, density = True )
         scale = len(test_df) / sum(hist)
         err = np.sqrt(hist * scale) / scale
         center = (bins[:-1] + bins[1:]) / 2

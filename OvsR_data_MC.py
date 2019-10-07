@@ -135,7 +135,6 @@ plt.plot(fpr_data["micro"], tpr_data["micro"], color='black', linestyle=':',
                ''.format(roc_auc_data["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
-plt.ylim(0,1)
 plt.legend()
 
 # test roc auc
@@ -151,7 +150,6 @@ plt.plot(fpr_mc["micro"], tpr_mc["micro"], color='black', linestyle=':',
                ''.format(roc_auc_mc["micro"]))
 plt.xlabel('background efficiency')
 plt.ylabel('signal efficiency')
-plt.ylim(0,1)
 plt.legend()
 
 f.tight_layout()
@@ -174,10 +172,13 @@ for prob_key in df_data:
     for key in df_data:
         #plot histogram
         plt.hist(df_data_test.loc[df_data_test[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
-        alpha =0.5, bins = 50, histtype='stepfilled', density=True,
+        alpha =0.25, bins = 100, histtype='stepfilled', density=True, range=(1.e-4, 1),
+        label = '{0}_data'.format(key), log=True)
+        plt.hist(df_data_test.loc[df_data_test[key] == 1]['prob_{0}'.format(prob_key)], color = col[key],
+        alpha =1, bins = 100, histtype='step', density=True, range=(1.e-4, 1),
         label = '{0}_data'.format(key), log=True)
         #error_bar
-        hist, bins = np.histogram(df_mc_test.query('PDGcode == {0}'.format(pdg[key]))['prob_{0}'.format(prob_key)].values, bins = 50, density = True )
+        hist, bins = np.histogram(df_mc_test.query('PDGcode == {0}'.format(pdg[key]))['prob_{0}'.format(prob_key)].values, bins = 100, density = True )
         scale = len(df_mc_test) / sum(hist)
         err = np.sqrt(hist * scale) / scale
         center = (bins[:-1] + bins[1:]) / 2

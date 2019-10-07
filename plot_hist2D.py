@@ -89,7 +89,7 @@ def hist2D_MC(file):
     # add some space
     plt.tight_layout()
 
-    plt.savefig('plot_hist2D_MC.pdf')
+    plt.savefig('plot_hist2D_MC.png')
     plt.show()
 
 # functions data
@@ -144,7 +144,7 @@ def hist2D_data(file):
     
     # add some space
     plt.tight_layout()
-    plt.savefig('plot_hist2D_data.pdf')
+    plt.savefig('plot_hist2D_data.png')
     plt.show()
 
 
@@ -166,6 +166,7 @@ if ARGS.mc:
     # files
     files = [f for f in os.listdir(ARGS.dir) if ('MC.parquet.gzip' in f and not f.startswith('._'))]
     files.remove('kaons_fromTOF_MC.parquet.gzip')
+    files.sort()
     os.chdir(ARGS.dir)
     # plot
     hist2D_MC(files)
@@ -174,6 +175,7 @@ elif ARGS.data:
     # files
     files = [f for f in os.listdir(ARGS.dir) if ('_data.parquet.gzip' in f and not f.startswith('._'))]
     files.remove('kaons_fromTOF_data.parquet.gzip')
+    files.sort()
     os.chdir(ARGS.dir)
     # plot
     hist2D_data(files)
