@@ -58,7 +58,7 @@ train_test_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-train_df = pd.concat([data[key].iloc[:50000]
+train_df = pd.concat([data[key].iloc[:100]
                       for key in data], ignore_index=True)
 
 # testing dataframe
@@ -285,7 +285,7 @@ plt.savefig('confusion_matrix_of_species_OvsR.pdf')
 #plot distribution of probabilities
 
 #adding distribution prob.
-for prob, key in enumerate(keys):
+for prob, key in enumerate('category'):
     train_df['prob_{0}'.format(key)] = y_proba_train[:, prob]
     test_df['prob_{0}'.format(key)] = y_proba_test[:, prob]
 
@@ -308,7 +308,7 @@ for prob_key in keys:
         err = np.sqrt(hist * scale) / scale
         plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_test'.format(key))
     plt.xlabel('probability to be {0}'.format(prob_key))
-    plt.ylabel('entries')
+    plt.ylabel('log(entries)')
     plt.xlim(0,1)
     plt.legend(loc='best')
     fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(prob_key))

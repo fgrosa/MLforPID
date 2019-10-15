@@ -17,7 +17,8 @@ PARSER.add_argument('dir', metavar='text', default='.',
 ARGS = PARSER.parse_args()
 
 # files
-files = [f for f in os.listdir(ARGS.dir) if 'data.parquet.gzip' in f]
+files = [f for f in os.listdir(ARGS.dir) if (
+    'data.parquet.gzip' in f and not f.startswith("._"))]
 files.remove('kaons_fromTOF_data.parquet.gzip')
 files.remove('He3_fromTOFTPC_data.parquet.gzip')
 files.remove('triton_fromTOFTPC_data.parquet.gzip')
@@ -30,6 +31,9 @@ data = dict(zip(keys, files))
 
 for key in data:
     data[key] = pd.read_parquet(data[key])
+    header = data[key].select_dtypes(include=[np.float64]).columns
+    # change dtype of column with float64
+    data[key][header] = data[key][header].astype('float32')
 
 print('adding category to dataframes')
 
@@ -41,7 +45,7 @@ training_columns = ['p', 'pTPC', 'ITSclsMap',
                     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-training_df = pd.concat([data[key].iloc[:5000]
+training_df = pd.concat([data[key].iloc[0:25000]
                          for key in data], ignore_index=True)
 
 # traing data with training columns
@@ -93,7 +97,7 @@ columns_df = ['index', 'max_depth', 'n_estimator',
 df_results = pd.DataFrame(paramsvalue, columns=columns_df)
 
 # conversion to parquet
-df_results.to_parquet('results_grid_search_multiclass.parquet.gzip', compression='gzip')
+df_results.to_parquet('results_grid_search.parquet.gzip', compression='gzip')
 print('dataframe of the results of grid search saved')
 
 # plotting datas of average_roc_auc_micro in function of index
