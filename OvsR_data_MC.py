@@ -15,6 +15,7 @@ def roc_calculation(fpr, tpr, roc_auc, y_test, y_score, n_species):
     fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_score.ravel())
     roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
 
+
 # flags
 PARSER = argparse.ArgumentParser(description='Arguments to pass')
 PARSER.add_argument('data_dir', metavar='text', default='.',
