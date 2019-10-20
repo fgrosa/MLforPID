@@ -125,7 +125,7 @@ roc_calculation(fpr_mc, tpr_mc, roc_auc_mc,
 f = plt.figure(figsize=[10, 5], constrained_layout=True)
 # train roc auc
 plt.subplot(1, 2, 1)
-plt.title('Data ROC-AUC', fontsize=25)
+plt.title('Data', fontsize=25)
 colors = ['silver', 'lightsteelblue', 'lightcoral', 'khaki', 'lightgreen']
 for ind, color in enumerate (colors):
     plt.plot(fpr_data[ind], tpr_data[ind], color=color,
@@ -134,11 +134,11 @@ plt.plot(fpr_data["micro"], tpr_data["micro"], color='black', linestyle=':',
          label='micro-average (area = {0:0.4f})'.format(roc_auc_data["micro"]))
 plt.xlabel('background efficiency',fontsize=20)
 plt.ylabel('signal efficiency',fontsize=20)
-plt.legend(loc ='lower right',fontsize=15)
+plt.legend(loc ='lower right',fontsize=12)
 
 # test roc auc
 plt.subplot(1, 2, 2)
-plt.title('MC ROC-AUC',fontsize = 25)
+plt.title('MC',fontsize = 25)
 colors = ['silver', 'lightsteelblue', 'lightcoral', 'khaki', 'lightgreen']
 for ind, color in enumerate(colors):
     plt.plot(fpr_mc[ind], tpr_mc[ind], color=color,
@@ -147,7 +147,7 @@ plt.plot(fpr_mc["micro"], tpr_mc["micro"], color='black', linestyle=':',
          label='micro-average (area = {0:0.4f})'.format(roc_auc_mc["micro"]))
 plt.xlabel('background efficiency',fontsize = 20)
 plt.ylabel('signal efficiency',fontsize = 20)
-plt.legend(loc ='lower right',fontsize = 15)
+plt.legend(loc ='lower right',fontsize = 12)
 
 f.tight_layout()
 
@@ -181,7 +181,7 @@ for prob_key in df_data:
     plt.xlabel('probability to be {0}'.format(prob_key), fontsize=20)
     plt.ylabel('entries', fontsize=20)
     plt.xlim(0,1)
-    plt.legend(loc='best',fontsize=15)
+    plt.legend(loc='best',fontsize=14)
     fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(prob_key))
 
 plt.show()
