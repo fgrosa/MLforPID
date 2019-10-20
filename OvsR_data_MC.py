@@ -94,7 +94,7 @@ target_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 #all dataframe for testing and roc auc
-df_data_test = pd.concat([df_data[key].iloc[50000:100000]
+df_data_test = pd.concat([df_data[key].iloc[50000:]
                      for key in df_data], ignore_index=True)
 
 #predict data based on the target columns

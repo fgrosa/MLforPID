@@ -59,7 +59,7 @@ train_test_columns = ['p', 'pTPC', 'ITSclsMap',
     'dEdxITS', 'NclusterPIDTPC', 'dEdxTPC']
 
 # training dataframe
-train_df = pd.concat([data[key].iloc[:100]
+train_df = pd.concat([data[key].iloc[:50000]
                       for key in data], ignore_index=True)
 
 # testing dataframe
