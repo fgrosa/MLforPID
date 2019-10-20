@@ -155,7 +155,7 @@ plt.savefig('ROC_AUC_OvsR_data_mc.pdf')
 
 
 #adding distribution prob.
-for prob, key in enumerate(df_mc):
+for prob, key  in enumerate(df_mc):
     df_data_test['prob_{0}'.format(key)] = df_data_pred_proba[:, prob]
     df_mc_test['prob_{0}'.format(key)] = df_mc_pred_proba[:, prob]
 
