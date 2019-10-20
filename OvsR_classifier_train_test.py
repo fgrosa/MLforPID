@@ -135,10 +135,10 @@ ax1.figure.colorbar(im1, ax=ax1)
 ax1.set(xticks=np.arange(conf_matr_train.shape[1]),
         yticks=np.arange(conf_matr_train.shape[0]),
         # label them with the respective list entries
-        xticklabels=keys, yticklabels=keys,
-        title='Confusion matrix of train',
-        ylabel='True label',
-        xlabel='Predicted label')
+        xticklabels=keys, yticklabels=keys)
+ax1.title('Confusion matrix of train', fontsize =20)
+ax1.xlabel('Predicted label', fontsize = 18)
+ax1.ylabel('True label', fontsize = 18)
 # Rotate the tick labels and set their alignment.
 plt.setp(ax1.get_xticklabels(), rotation=45, ha="right",
     rotation_mode="anchor")
@@ -148,10 +148,10 @@ for i in range(conf_matr_test.shape[0]):
     for j in range(conf_matr_train.shape[1]):
         ax1.text(j, i, format(conf_matr_train[i, j], '.3f'),
             ha="center", va="center",
-            color="black", fontsize=12)
+            color="white" if conf_matr_train[i, j]>0.5 else "black", fontsize=12)
 
-plt.xticks(fontsize = 10)
-plt.yticks(fontsize = 10)
+plt.xticks(fontsize = 15)
+plt.yticks(fontsize = 15)
 
 # plot confusion matrix test
 ax2 = plt.subplot(1, 2, 2)
@@ -161,10 +161,10 @@ im2 = ax2.imshow(conf_matr_test, interpolation='nearest',
 ax2.figure.colorbar(im2, ax=ax2)
 ax2.set(xticks=np.arange(conf_matr_test.shape[1]),
         yticks=np.arange(conf_matr_test.shape[0]),
-        xticklabels=keys, yticklabels=keys,
-        title='Confusion matrix of test',
-        ylabel='True label',
-        xlabel='Predicted label')
+        xticklabels=keys, yticklabels=keys)
+ax2.title('Confusion matrix of test', fontsize=20)
+ax2.xlabel(xlabel='Predicted label', fontsize =18)
+ax2.ylabel(xlabel='True label', fontsize =18)
 # Rotate the tick labels and set their alignment.
 plt.setp(ax2.get_xticklabels(), rotation=45, ha="right",
     rotation_mode="anchor")
@@ -174,10 +174,10 @@ for i in range(conf_matr_test.shape[0]):
     for j in range(conf_matr_test.shape[1]):
         ax2.text(j, i, format(conf_matr_test[i, j], '.3f'),
             ha="center", va="center",
-            color="black", fontsize=12)
+            color="white" if conf_matr_test[i, j]>0.5 else "black" , fontsize=12)
 
-plt.xticks(fontsize = 10)
-plt.yticks(fontsize = 10)
+plt.xticks(fontsize = 15)
+plt.yticks(fontsize = 15)
 
 f1.tight_layout()
 
@@ -187,33 +187,29 @@ plt.savefig('confusion_matrix_OvsR.pdf')
 f2 = plt.figure(figsize=[10, 5], constrained_layout=True)
 # train roc auc
 plt.subplot(1, 2, 1)
-plt.title('Train ROC-AUC')
-colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
+plt.title('Train ROC-AUC',fontsize =25)
+colors = ['silver', 'lightsteelblue', 'lightcoral', 'khaki', 'lightgreen']
 for ind, color in enumerate(colors):
     plt.plot(fpr_train[ind], tpr_train[ind], color=color,
-             label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
-             ''.format(roc_auc_train[ind]))
+             label=keys[ind] + ' (area = {0:0.4f})'.format(roc_auc_train[ind]))
 plt.plot(fpr_train["micro"], tpr_train["micro"], color='black', linestyle=':',
-         label='micro-average ROC curve (area = {0:0.4f})'
-               ''.format(roc_auc_train["micro"]))
-plt.xlabel('background efficiency')
-plt.ylabel('signal efficiency')
-plt.legend(loc ='lower right')
+         label='micro-average (area = {0:0.4f})'.format(roc_auc_train["micro"]))
+plt.xlabel('background efficiency',fontsize= 20)
+plt.ylabel('signal efficiency',fontsize = 20)
+plt.legend(loc ='lower right',fontsize = 15)
 
 # test roc auc
 plt.subplot(1, 2, 2)
-plt.title('Test ROC-AUC')
-colors = ['lightcoral', 'khaki', 'yellowgreen', 'lightblue', 'lightsteelblue']
+plt.title('Test ROC-AUC', fontsize= 25)
+colors = ['silver', 'lightsteelblue', 'lightcoral', 'khaki', 'lightgreen']
 for ind, color in enumerate(colors):
     plt.plot(fpr_test[ind], tpr_test[ind], color=color,
-             label='ROC curve of ' + keys[ind] + ' (area = {0:0.4f})'
-             ''.format(roc_auc_test[ind]))
+             label= keys[ind] + ' (area = {0:0.4f})'.format(roc_auc_test[ind]))
 plt.plot(fpr_test["micro"], tpr_test["micro"], color='black', linestyle=':',
-         label='micro-average ROC curve (area = {0:0.4f})'
-               ''.format(roc_auc_test["micro"]))
-plt.xlabel('background efficiency')
-plt.ylabel('signal efficiency')
-plt.legend(loc ='lower right')
+         label='micro-average (area = {0:0.4f})'.format(roc_auc_test["micro"]))
+plt.xlabel('background efficiency', fontsize = 20)
+plt.ylabel('signal efficiency', fontsize = 20)
+plt.legend(loc ='lower right', fontsize = 15)
 
 f2.tight_layout()
 
@@ -227,9 +223,9 @@ im3 = ax3.imshow(corr_df, plt.get_cmap('coolwarm'))
 ax3.figure.colorbar(im3, ax=ax3,)
 ax3.set(xticks=np.arange(corr_df.shape[1]),
         yticks=np.arange(corr_df.shape[0]),
-        xticklabels=train_test_columns, yticklabels=train_test_columns,
-        title='Correlation matrix',
+        xticklabels=train_test_columns, yticklabels=train_test_columns
         )
+ax3.title('Correlation matrix', fontsize=20)
 # Rotate the tick labels and set their alignment.
 plt.setp(ax3.get_xticklabels(), rotation=45, ha="right",
     rotation_mode="anchor")
@@ -237,12 +233,12 @@ plt.setp(ax3.get_xticklabels(), rotation=45, ha="right",
 #add values in the middle of the cell
 for i in range(corr_df.values.shape[0]):
     for j in range(corr_df.values.shape[1]):
-        ax3.text(j, i, format(corr_df.values[i, j], '.4f'),
+        ax3.text(j, i, format(corr_df.values[i, j], '.3f'),
             ha="center", va="center",
-            color="black",fontsize=12)
+            color="white" if corr_df.values[i, j]>0.5 else "black" ,fontsize=12)
 
-plt.xticks(fontsize = 10)
-plt.yticks(fontsize = 10)
+plt.xticks(fontsize = 15)
+plt.yticks(fontsize = 15)
 
 plt.savefig('correlation_matrix_OvsR.pdf')
 
@@ -271,12 +267,12 @@ for i in range(2):
         plt.setp(ax.get_yticklabels(), rotation=45, ha="right", rotation_mode="anchor")
         for ind_i in range(cm.shape[0]):
             for ind_j in range(cm.shape[1]):
-                ax.text(ind_j, ind_i, format(cm[ind_i, ind_j], '.4f'),
+                ax.text(ind_j, ind_i, format(cm[ind_i, ind_j], '.3f'),
                     ha="center", va="center",
-                    color="black", fontsize=10)
+                    color="white" if cm[ind_i, ind_j]>0.5 else "black", fontsize=12)
 
-plt.xticks(fontsize = 10)
-plt.yticks(fontsize = 10)
+plt.xticks(fontsize = 15)
+plt.yticks(fontsize = 15)
 
 f4.tight_layout()
 
@@ -308,10 +304,10 @@ for prob_key in keys:
         scale = len(test_df) / sum(hist)
         err = np.sqrt(hist * scale) / scale
         plt.errorbar(center, hist, yerr=err, fmt='o', c=col[key], label = '{0}_test'.format(key))
-    plt.xlabel('probability to be {0}'.format(prob_key))
-    plt.ylabel('log(entries)')
+    plt.xlabel('probability to be {0}'.format(prob_key), fontsize = 20)
+    plt.ylabel('log(entries)', fontsize= 20)
     plt.xlim(0,1)
-    plt.legend(loc='best')
+    plt.legend(loc='best', fontsize= 15)
     fighist.savefig('probability_distribution_of_{0}_and_OvsR.pdf'.format(prob_key))
 
 plt.show()
